@@ -50,7 +50,7 @@ response instead of the default, 5000 ms.
                                                  :Priority "1"
                                                  :Timeout 60000
                                                  :CallerID "99970"
-                                                 :Variable "VAR=VALUE"
+                                                 :Variables ["VAR=VALUE"]
                                                  })]
         response)))) => {:Message "Originate successfully queued", :Response "Success"}
 
