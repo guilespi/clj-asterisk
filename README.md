@@ -76,11 +76,11 @@ events to handle declaring each needed multimethod.
 
 ```
 
+* etc.
 ## TODO
 
 * Properly read packet `Response` with `Follows` directive, used by the action `command` executing on the `CLI`
 * Mock and fake some tests in order to run without a live asterisk
-* etc.
 
 ## License
 

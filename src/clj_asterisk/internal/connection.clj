@@ -1,4 +1,5 @@
 (ns clj-asterisk.internal.connection
+  (:use [slingshot.slingshot :only [try+]])
   (:import (java.net Socket)
            (java.io PrintWriter InputStreamReader BufferedReader)))
 
@@ -12,7 +13,7 @@
   (let [socket (Socket. (:name server) (:port server))
         in (BufferedReader. (InputStreamReader. (.getInputStream socket)))
         out (PrintWriter. (.getOutputStream socket))
-        conn (ref {:in in :out out})]
+        conn (ref {:in in :out out :socket socket})]
     conn))
 
 (defn write
@@ -25,7 +26,10 @@
 (defn readline
   "Reads a single line from a connection"
   [connection]
-  (.readLine (:in @connection)))
+  (try+
+   ;;if reading from a closed socket exception is raised nil is returned
+   (.readLine (:in @connection))
+   (catch Object _)))
 
 (defn connected?
   [connection]
@@ -33,5 +37,6 @@
 
 (defn disconnect
   [connection]
-  ;TODO:destroy the damn socket?
+  (.close (:out @connection))
+  (.close (:socket @connection))
   (dosync (alter connection merge {:exit true})))

@@ -1,0 +1,9 @@
+/target
+/lib
+/classes
+/checkouts
+*.jar
+*.class
+pom.xml
+
+/*.xml.asc
