@@ -45,7 +45,7 @@
      (read-response action-id (:timeout @*context*)))
   ([action-id timeout]
      (if-let [p (get (:packets @*context*) action-id)]
-       (if-let [response (deref p timeout nil)]
+       (if-let [response (deref p (or timeout (:timeout @*context*)) nil)]
          (do
            (swap! *context* #(dissoc-in % [:packets action-id]))
            response)
