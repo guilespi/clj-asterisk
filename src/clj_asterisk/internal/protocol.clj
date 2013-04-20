@@ -15,6 +15,12 @@
   [line]
   (blank? line))
 
+(defn escape-variable
+  "Escapes commas since are used as separators inside asterisk variable parser"
+  [variable]
+  (let [[_ name value] (re-find #"([^=]+)=(.+)$" variable)]
+    (str name "=" (clojure.string/replace value #"," "\\\\,"))))
+
 (defn clj->ast
   "Converts the message from a clojure hashmap to the stringified
    asterisk manager protocol, the expected message is of the form:
@@ -37,7 +43,7 @@
   (str "Action: " (name action) "\r\n"
        (join "\r\n" (map #(format "%s: %s" (name (% 0)) (% 1)) (dissoc message :Variables)))
        (when-let [vars (:Variables message)]
-         (str "\r\n" (join "\r\n" (map #(format "Variable: %s" %) vars))))
+         (str "\r\n" (join "\r\n" (map #(format "Variable: %s" (escape-variable %)) vars))))
        "\r\n"))
 
 (defn ast->clj
