@@ -1,4 +1,5 @@
 (ns clj-asterisk.internal.connection
+  (:require [clojure.tools.logging :as log])
   (:use [slingshot.slingshot :only [try+]])
   (:import (java.net Socket)
            (java.io PrintWriter InputStreamReader BufferedReader)))
@@ -29,7 +30,9 @@
   (try+
    ;;if reading from a closed socket exception is raised nil is returned
    (.readLine (:in @connection))
-   (catch Object _)))
+   (catch Object _
+     ;;this has no handling since it's the standard path when socket disconnects
+     )))
 
 (defn connected?
   [connection]
