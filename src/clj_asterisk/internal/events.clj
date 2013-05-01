@@ -23,11 +23,17 @@
   
 (defn- queue-response
   "Queues the packet as a response, it's assumed there's a corresponding
-   promise waiting for the response inside the context packet list."
+   promise waiting for the response inside the context packet list.
+   If no promise is found retry at least three times"
   [packet]
-  (if-let [p (get-action-promise (read-string (or (:ActionID packet) "0")))]
-    (deliver p packet)
-    (throw+ {:type ::nopromise :packet packet})))
+  (let [action-id (read-string (or (:ActionID packet) "0"))]
+    (loop [retries 3]
+      (if-let [p (get-action-promise action-id)]
+        (deliver p packet)
+        (if (> retries 0)
+          (do (Thread/sleep 50) 
+              (recur (dec retries)))
+          (throw+ {:type ::nopromise :packet packet}))))))
 
 (defn- dispatch-message
   "Dispatches a message according to it's base type"

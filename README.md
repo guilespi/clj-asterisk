@@ -6,7 +6,7 @@ clj-asterisk is a Clojure binding for [Asterisk Manager API](http://www.voip-inf
 
 Add the following dependency to your `project.clj` file:
 
-    [clj-asterisk "0.2.1"]
+    [clj-asterisk "0.2.2"]
 
 ## Usage
 
@@ -55,6 +55,41 @@ response instead of the default, 5000 ms.
         response)))) => {:Message "Originate successfully queued", :Response "Success"}
 
 ```
+
+### Originating Calls
+
+In order to send many calls over the same connection the :Async parameter should be used.
+
+```clojure
+
+(manager/with-config
+  {:name "asterisk.host"}
+  (let [context (manager/login "user" "pass" :with-events)]
+    (manager/with-connection context
+      (let [response (manager/action :Originate {:Channel "SIP/1000"
+                                                 :Context "test-context"
+                                                 :Exten "1000"
+                                                 :Priority "1"
+                                                 :Timeout 60000
+                                                 :CallerID "99970"
+                                                 :Async "true"
+                                                 :Variables ["VAR=VALUE"]
+                                                 })]
+        response)))) => {:Reason "4", :Response "Success"}
+```
+
+In this case the response packet contains the completion reason according to these statuses:
+
+```
+Connected = "4"
+Busy = "5"
+Congestion = "8"
+No Answer = "3"
+Failure = "0"
+```
+
+Consider this strategy will block your thread until dialing completion, not until call completion. In
+case you need to know when the call ends you need to wait for the `Hangup` event.
 
 ### Waiting for events
 

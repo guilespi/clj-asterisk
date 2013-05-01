@@ -18,9 +18,12 @@
                                                        :Context "test-context"
                                                        :Exten "1000"
                                                        :Priority "1"
-                                                       :Timeout 60000
+                                                       :Timeout 30000
                                                        :CallerID "99970"
+                                                       :Async "yes"
                                                        :Variables ["MESSAGE=This is a message"]
                                                        })]
-              (select-keys response [:Message :Response]))))) => {:Message "Originate successfully queued", :Response "Success"})
+              (select-keys response [:Reason :Response]))))) => {:Reason "4", :Response "Success"})
 
+
+(Thread/sleep 20000)

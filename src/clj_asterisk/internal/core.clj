@@ -52,6 +52,12 @@
          (throw+ {:type ::timeout :action-id action-id}))
        (throw+ {:type ::nopromise :action-id action-id}))))
 
+(defn wait-async-response
+  "Creates a promise id to wait for and waits on it for the response"
+  [action-id timeout]
+  (swap! *context* #(assoc-in % [:packets action-id] (promise)))
+  (read-response action-id timeout))
+
 (defn get-connection
   "Returns the associated connection to the current context"
   []

@@ -2,7 +2,8 @@
   (:require [clj-asterisk.internal.connection :as connection]
             [clj-asterisk.internal.events :as events]
             [clojure.tools.logging :as log])
-  (:use [clj-asterisk.internal.core :only [send-message read-response get-connection]]
+  (:use [clj-asterisk.internal.core :only [send-message read-response 
+                                           get-connection wait-async-response]]
         [clj-asterisk.internal.def]
         [slingshot.slingshot :only [throw+ try+]]))
 
@@ -98,7 +99,11 @@
             response (read-response action-id (:Timeout parameters))]
         (if (failed? response)
           (throw+ {:type ::action-error :operation operation :parameters parameters :action-id action-id :response response})
-          response))
+          (if (:Async parameters) 
+            ;;if action is async another packet is received with the same 
+            ;;Actionid response
+            (wait-async-response action-id (:Timeout parameters))
+            response)))
       (catch :type e
         (log/error e)
         e)
