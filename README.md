@@ -111,10 +111,26 @@ events to handle declaring each needed multimethod.
 
 ```
 
-* etc.
+### Executing CLI Commands
+
+CLI Commands are supported using the :COMMAND action, if the command succeeds the response string is made available as a sequence of lines in the `Data` attribute of the response map.
+
+```clojure
+(manager/with-config    
+        {:name "asterisk.host"}
+        (let [context (manager/login "user" "password" :no-events)]
+          (manager/with-connection context
+            (select-keys (manager/action :COMMAND {:command "core show channels"})
+                         [:Response :Data])))) 
+      => {:Response "Success" 
+          :Data ("Channel              Location             State   Application(Data)             " 
+                 "0 active channels" 
+                 "0 active calls" 
+                 "11 calls processed")
+```
+
 ## TODO
 
-* Properly read packet `Response` with `Follows` directive, used by the action `command` executing on the `CLI`
 * Mock and fake some tests in order to run without a live asterisk
 
 ## License

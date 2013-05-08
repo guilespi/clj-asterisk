@@ -26,4 +26,4 @@
               (select-keys response [:Reason :Response]))))) => {:Reason "4", :Response "Success"})
 
 
-(Thread/sleep 20000)
+(Thread/sleep 10000)

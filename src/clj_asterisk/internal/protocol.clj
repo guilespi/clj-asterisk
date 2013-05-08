@@ -6,14 +6,18 @@
 (defn- parse-line
   [line]
   (let [kv (split line #":")]
-    (if (= (count kv) 2)
-      {(keyword (kv 0)) (trim (kv 1))}
-      (throw+ {:type ::invalid-line :line line}))))
+    (when (= (count kv) 2)
+      {(keyword (kv 0)) (trim (kv 1))})))
 
 (defn end-of-message?
   "Returns true if the line represents the end of a distinct packet"
   [line]
   (blank? line))
+
+(defn end-of-command?
+  "Returns true if the line represents the end of a cli command response"
+  [line]
+  (= line "--END COMMAND--"))
 
 (defn escape-variable
   "Escapes commas since are used as separators inside asterisk variable parser"
@@ -46,9 +50,22 @@
          (str "\r\n" (join "\r\n" (map #(format "Variable: %s" (escape-variable %)) vars))))
        "\r\n"))
 
+(defn process-line
+  [packet line]
+  (if-let [parsed-line (parse-line line)]
+    (merge packet parsed-line)
+    (if (= (:Response packet) "Follows")
+      (assoc packet :Data (conj (or (:Data packet) []) line))
+      (throw+ {:type ::invalid-line :line line}))))
+
 (defn ast->clj
   "Given a list of lines from the asterisk manager protocol creates a
    corresponding clojure hashmap."
   [lines]
   (log/info (str "Parsing " lines))
-  (reduce #(merge %1 (parse-line %2)) {} lines))
+  (let [packet (reduce #(process-line %1 %2) {} lines)]
+    (if (= (:Response packet) "Follows")
+      {:Response "Success" 
+       :ActionID (:ActionID packet)
+       :Data (filter (comp not end-of-command?) (:Data packet))}
+      packet)))
