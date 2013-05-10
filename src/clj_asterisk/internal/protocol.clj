@@ -52,11 +52,16 @@
 
 (defn process-line
   [packet line]
-  (if-let [parsed-line (parse-line line)]
-    (merge packet parsed-line)
-    (if (= (:Response packet) "Follows")
+  (let [parsed-line (parse-line line)
+        field-key (get (first parsed-line) 0)]
+    (if (and (= (:Response packet) "Follows")
+             (or (nil? parsed-line)
+                 (and (not= :Privilege field-key)
+                      (not= :ActionID field-key))))
       (assoc packet :Data (conj (or (:Data packet) []) line))
-      (throw+ {:type ::invalid-line :line line}))))
+      (if parsed-line
+        (merge packet parsed-line)
+        (throw+ {:type ::invalid-line :line line})))))
 
 (defn ast->clj
   "Given a list of lines from the asterisk manager protocol creates a
