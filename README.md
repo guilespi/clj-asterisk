@@ -6,7 +6,7 @@ clj-asterisk is a Clojure binding for [Asterisk Manager API](http://www.voip-inf
 
 Add the following dependency to your `project.clj` file:
 
-    [clj-asterisk "0.2.3"]
+    [clj-asterisk "0.2.4"]
 
 ## Usage
 

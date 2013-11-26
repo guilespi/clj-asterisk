@@ -1,4 +1,4 @@
-(defproject clj-asterisk "0.2.3"
+(defproject clj-asterisk "0.2.4"
   :description "Clojure bindings for Asterisk Manager API"
   :url "http://www.github.com/guilespi/clj-asterisk"
   :license {:name "Eclipse Public License"
