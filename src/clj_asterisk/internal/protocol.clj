@@ -5,7 +5,7 @@
 
 (defn- parse-line
   [line]
-  (let [kv (split line #":")]
+  (let [kv (split line #":" 2)]
     (when (= (count kv) 2)
       {(keyword (kv 0)) (trim (kv 1))})))
 
