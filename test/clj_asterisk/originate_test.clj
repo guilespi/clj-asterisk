@@ -21,8 +21,7 @@
                                                        :Timeout 30000
                                                        :CallerID "99970"
                                                        :Async "yes"
-                                                       :Variables ["MESSAGE=This is a message"]
-                                                       })]
+                                                       :Variables {:MESSAGE "This is a message"}})]
               (select-keys response [:Reason :Response]))))) => {:Reason "4", :Response "Success"})
 
 
