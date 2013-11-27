@@ -12,7 +12,7 @@ Add the following dependency to your `project.clj` file:
 
 ### Logging in
 
-When logging in, you can subscribe to events or not using the `:with-events` and `:no-events` keywords. 
+When logging in, you can subscribe to events or not using the `:with-events` and `:no-events` keywords.
 The login function returns the context object to be used in future action invocations.
 
 ```clojure
@@ -50,8 +50,7 @@ response instead of the default, 5000 ms.
                                                  :Priority "1"
                                                  :Timeout 60000
                                                  :CallerID "99970"
-                                                 :Variables ["VAR=VALUE"]
-                                                 })]
+                                                 :Variables {:VAR "value"})]
         response)))) => {:Message "Originate successfully queued", :Response "Success"}
 
 ```
@@ -73,8 +72,7 @@ In order to send many calls over the same connection the :Async parameter should
                                                  :Timeout 60000
                                                  :CallerID "99970"
                                                  :Async "true"
-                                                 :Variables ["VAR=VALUE"]
-                                                 })]
+                                                 :Variables {:VAR "value"}})]
         response)))) => {:Reason "4", :Response "Success"}
 ```
 
@@ -116,16 +114,16 @@ events to handle declaring each needed multimethod.
 CLI Commands are supported using the :COMMAND action, if the command succeeds the response string is made available as a sequence of lines in the `Data` attribute of the response map.
 
 ```clojure
-(manager/with-config    
+(manager/with-config
         {:name "asterisk.host"}
         (let [context (manager/login "user" "password" :no-events)]
           (manager/with-connection context
             (select-keys (manager/action :COMMAND {:command "core show channels"})
-                         [:Response :Data])))) 
-      => {:Response "Success" 
-          :Data ("Channel              Location             State   Application(Data)             " 
-                 "0 active channels" 
-                 "0 active calls" 
+                         [:Response :Data]))))
+      => {:Response "Success"
+          :Data ("Channel              Location             State   Application(Data)             "
+                 "0 active channels"
+                 "0 active calls"
                  "11 calls processed")
 ```
 

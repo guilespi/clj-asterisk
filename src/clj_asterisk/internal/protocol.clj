@@ -6,8 +6,9 @@
 (defn- parse-line
   [line]
   (let [kv (split line #":" 2)]
-    (when (= (count kv) 2)
-      {(keyword (kv 0)) (trim (kv 1))})))
+    (if (= (count kv) 2)
+      {(keyword (kv 0)) (trim (kv 1))}
+      (throw+ {:type ::invalid-line :line line}))))
 
 (defn end-of-message?
   "Returns true if the line represents the end of a distinct packet"
@@ -21,9 +22,8 @@
 
 (defn escape-variable
   "Escapes commas since are used as separators inside asterisk variable parser"
-  [variable]
-  (let [[_ name value] (re-find #"([^=]+)=(.+)$" variable)]
-    (str name "=" (clojure.string/replace value #"," "\\\\,"))))
+  [[key value]]
+  (str (name key) "=" (clojure.string/replace (str value) #"," "\\\\,")))
 
 (defn clj->ast
   "Converts the message from a clojure hashmap to the stringified
@@ -34,7 +34,7 @@
     ...}
 
    The created message is as specified in the docs:
-  
+
    Action: <action type><CRLF>
    <Key 1>: <Value 1><CRLF>
    <Key 2>: <Value 2><CRLF>
@@ -59,9 +59,7 @@
                  (and (not= :Privilege field-key)
                       (not= :ActionID field-key))))
       (assoc packet :Data (conj (or (:Data packet) []) line))
-      (if parsed-line
-        (merge packet parsed-line)
-        (throw+ {:type ::invalid-line :line line})))))
+      (merge packet parsed-line))))
 
 (defn ast->clj
   "Given a list of lines from the asterisk manager protocol creates a
@@ -70,7 +68,7 @@
   (log/info (str "Parsing " lines))
   (let [packet (reduce #(process-line %1 %2) {} lines)]
     (if (= (:Response packet) "Follows")
-      {:Response "Success" 
+      {:Response "Success"
        :ActionID (:ActionID packet)
        :Data (filter (comp not end-of-command?) (:Data packet))}
       packet)))
