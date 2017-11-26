@@ -5,10 +5,11 @@
 
 (defn- parse-line
   [line]
-  (let [kv (split line #":" 2)]
-    (if (= (count kv) 2)
-      {(keyword (kv 0)) (trim (kv 1))}
-      (throw+ {:type ::invalid-line :line line}))))
+  (when (not= line "--END COMMAND--")
+    (let [kv (split line #":" 2)]
+      (if (= (count kv) 2)
+        {(keyword (kv 0)) (trim (kv 1))}
+        (throw+ {:type ::invalid-line :line line})))))
 
 (defn end-of-message?
   "Returns true if the line represents the end of a distinct packet"

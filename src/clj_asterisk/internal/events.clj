@@ -20,7 +20,7 @@
 (defn- connected?
   []
   (connection/connected? (get-connection)))
-  
+
 (defn- queue-response
   "Queues the packet as a response, it's assumed there's a corresponding
    promise waiting for the response inside the context packet list.
@@ -31,7 +31,7 @@
       (if-let [p (get-action-promise action-id)]
         (deliver p packet)
         (if (> retries 0)
-          (do (Thread/sleep 50) 
+          (do (Thread/sleep 50)
               (recur (dec retries)))
           (throw+ {:type ::nopromise :packet packet}))))))
 

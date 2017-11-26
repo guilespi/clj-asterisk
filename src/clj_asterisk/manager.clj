@@ -2,7 +2,7 @@
   (:require [clj-asterisk.internal.connection :as connection]
             [clj-asterisk.internal.events :as events]
             [clojure.tools.logging :as log])
-  (:use [clj-asterisk.internal.core :only [send-message read-response 
+  (:use [clj-asterisk.internal.core :only [send-message read-response
                                            get-connection wait-async-response]]
         [clj-asterisk.internal.def]
         [slingshot.slingshot :only [throw+ try+]]))
@@ -15,7 +15,8 @@
 (def known-banners #{"Asterisk Call Manager/1.0"
                      "Asterisk Call Manager/1.1"
                      "Asterisk Call Manager/1.2"
-                     "Asterisk Call Manager/1.3"})
+                     "Asterisk Call Manager/1.3"
+                     "Asterisk Call Manager/2.8.0"})
 
 (defalias with-connection clj-asterisk.internal.core/with-connection*)
 
@@ -34,7 +35,7 @@
 (defn failed?
   [response]
   (not (success? response)))
-  
+
 (defn- authenticate
   "Authenticates a user using the bound connection in *context*"
   [user password subscription]
@@ -77,7 +78,7 @@
        (try+
         (when (handshake?)
           (events/async-reader context)
-          (authenticate user password subscription) 
+          (authenticate user password subscription)
           context)
         (catch :type e
           (log/error e)
@@ -100,8 +101,8 @@
             response (read-response action-id (:Timeout parameters))]
         (if (failed? response)
           (throw+ {:type ::action-error :operation operation :parameters parameters :action-id action-id :response response})
-          (if (:Async parameters) 
-            ;;if action is async another packet is received with the same 
+          (if (:Async parameters)
+            ;;if action is async another packet is received with the same
             ;;Actionid response
             (wait-async-response action-id (:Timeout parameters))
             response)))
