@@ -5,7 +5,8 @@
 
 (defn- parse-line
   [line]
-  (when (not= line "--END COMMAND--")
+  (when (and (not= line "--END COMMAND--")
+             (not= line "--END SMS EVENT--"))
     (let [kv (split line #":" 2)]
       (if (= (count kv) 2)
         {(keyword (kv 0)) (trim (kv 1))}

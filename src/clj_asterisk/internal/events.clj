@@ -39,11 +39,12 @@
   "Dispatches a message according to it's base type"
   [lines]
   (try+
-   (when-let [packet (protocol/ast->clj lines)]
+   (if-let [packet (protocol/ast->clj lines)]
     (cond
      (:Response packet) (queue-response packet)
      (:Event packet) (public-events/handle-event packet (current-context))
-     :else (throw+ {:type ::unknown-packet :packet packet})))
+     :else (throw+ {:type ::unknown-packet :packet packet}))
+    (log/error "Unknown packet from lines:" lines))
    (catch :type e
      (log/error (pr-str e)))
    (catch Object _
