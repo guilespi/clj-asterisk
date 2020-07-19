@@ -16,7 +16,8 @@
                      "Asterisk Call Manager/1.1"
                      "Asterisk Call Manager/1.2"
                      "Asterisk Call Manager/1.3"
-                     "Asterisk Call Manager/2.8.0"})
+                     "Asterisk Call Manager/2.8.0"
+                     "Asterisk Call Manager/2.10.2"})
 
 (defalias with-connection clj-asterisk.internal.core/with-connection*)
 
